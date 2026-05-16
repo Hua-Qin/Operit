@@ -4632,12 +4632,6 @@ Sekarang Anda dapat menggunakan mode AutoGLM di antarmuka percakapan.</string>
     <string name="keep_screen_on_description">Jaga layar tetap menyala untuk mencegah penguncian otomatis selama percakapan</string>
     <string name="enable_navigation_animation">Animasi Navigasi Baru</string>
     <string name="enable_navigation_animation_description">Saat diaktifkan, mengaktifkan efek animasi yang ditingkatkan untuk sidebar ponsel dan peralihan halaman. Saat dinonaktifkan, menggunakan transisi navigasi yang sederhana.</string>
-    <string name="app_icon_switch_title">Ikon Aplikasi</string>
-    <string name="app_icon_switch_description">Ganti ikon aplikasi yang ditampilkan di desktop (beberapa desktop mungkin lambat memperbarui).</string>
-    <string name="app_icon_option_default">Ikon Klasik</string>
-    <string name="app_icon_option_simple">Ikon Sederhana</string>
-    <string name="app_icon_switch_applied_tip">Ikon telah diganti, silakan kembali ke desktop untuk melihat</string>
-    <string name="app_icon_switch_failed">Gagal mengganti ikon</string>
     <string name="reset_all_display_settings">Atur Ulang Semua Pengaturan Tampilan</string>
     <string name="ui_accessibility_mode">Mode Adaptasi Aksesibilitas UI</string>
     <string name="ui_accessibility_mode_description">Mengoptimalkan perilaku otomatisasi UI untuk pengguna aksesibilitas seperti TalkBack, memprioritaskan langkah-langkah operasi yang dapat dibacakan, dan berhati-hati dalam mengeksekusi klik otomatis.</string>

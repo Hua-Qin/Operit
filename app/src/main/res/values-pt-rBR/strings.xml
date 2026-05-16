@@ -4339,12 +4339,6 @@ Agora é possível usar o modo AutoGLM na interface de diálogo.</string>
     <string name="keep_screen_on_description">Mantenha a tela sempre ligada e evite que ela bloqueie automaticamente durante conversas</string>
     <string name="enable_navigation_animation">Nova animação de navegação</string>
     <string name="enable_navigation_animation_description">Ativa o conjunto aprimorado de animações para a barra lateral do celular e para as transições de página. Desative para usar uma navegação mais simples.</string>
-    <string name="app_icon_switch_title">ícone de software</string>
-    <string name="app_icon_switch_description">Mude o ícone do aplicativo exibido na área de trabalho (alguns desktops podem demorar para atualizar).</string>
-    <string name="app_icon_option_default">Ícone clássico</string>
-    <string name="app_icon_option_simple">Ícone simples</string>
-    <string name="app_icon_switch_applied_tip">O ícone foi trocado, retorne à área de trabalho para visualizar</string>
-    <string name="app_icon_switch_failed">Falha na troca de ícones</string>
     <string name="reset_all_display_settings">Redefinir todas as configurações de exibição</string>
     <string name="ui_accessibility_mode">Modo de adaptação de acessibilidade</string>
     <string name="ui_accessibility_mode_description">Otimize o comportamento de automação da IU para usuários acessíveis, como o TalkBack, dê prioridade a etapas de operação legíveis e execute cliques automáticos com cautela.</string>

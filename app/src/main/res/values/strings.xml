@@ -3038,6 +3038,7 @@
     <string name="chat_delete_single_variant">删除单次消息</string>
     <string name="chat_delete_single_variant_unavailable">当前消息没有可删除的单次候选</string>
     <string name="chat_delete_single_variant_failed">删除单次消息失败: %1$s</string>
+    <string name="chat_delete_message_confirm_message">确定要删除这条消息吗？此操作不可恢复。</string>
     <string name="chat_switch_variant_failed">切换回答失败: %1$s</string>
     <string name="chat_message_variant_counter">%1$d/%2$d</string>
     <string name="chat_previous_variant">上一条回答</string>
@@ -5131,12 +5132,6 @@
     <string name="software_identity_description">更改侧边栏顶部显示的软件标识。</string>
     <string name="software_identity_option_operit">Operit AI</string>
     <string name="software_identity_option_lingshu">灵枢 AI</string>
-    <string name="app_icon_switch_title">软件图标</string>
-    <string name="app_icon_switch_description">切换桌面显示的应用图标（部分桌面可能会延迟刷新）。</string>
-    <string name="app_icon_option_default">经典图标</string>
-    <string name="app_icon_option_simple">简洁图标</string>
-    <string name="app_icon_switch_applied_tip">已切换图标，请返回桌面查看</string>
-    <string name="app_icon_switch_failed">图标切换失败</string>
     <string name="reset_all_display_settings">重置所有显示设置</string>
     <string name="ui_accessibility_mode">无障碍适配模式</string>
     <string name="ui_accessibility_mode_description">为 TalkBack 等无障碍用户优化 UI 自动化行为，优先给出可朗读的操作步骤，谨慎执行自动点击。</string>

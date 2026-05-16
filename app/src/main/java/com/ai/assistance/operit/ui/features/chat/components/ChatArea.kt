@@ -599,6 +599,7 @@ private fun MessageItem(
     var showContextMenu by remember { mutableStateOf(false) }
     var showMessageInfoDialog by remember { mutableStateOf(false) }
     var showHiddenUserMessageDialog by remember { mutableStateOf(false) }
+    var showDeleteMessageConfirmDialog by remember { mutableStateOf(false) }
     var copyPreviewText by remember { mutableStateOf<String?>(null) }
 
 
@@ -912,8 +913,8 @@ private fun MessageItem(
                     )
                 },
                 onClick = {
-                    onDeleteMessage?.invoke(index)
                     showContextMenu = false
+                    showDeleteMessageConfirmDialog = true
                 },
                 leadingIcon = {
                     Icon(
@@ -1074,6 +1075,29 @@ private fun MessageItem(
             MessageInfoDialog(
                 message = message,
                 onDismiss = { showMessageInfoDialog = false }
+            )
+        }
+
+        if (showDeleteMessageConfirmDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteMessageConfirmDialog = false },
+                title = { Text(text = stringResource(R.string.confirm_delete)) },
+                text = { Text(text = stringResource(R.string.chat_delete_message_confirm_message)) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            onDeleteMessage?.invoke(index)
+                            showDeleteMessageConfirmDialog = false
+                        }
+                    ) {
+                        Text(text = stringResource(R.string.confirm_delete_action))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteMessageConfirmDialog = false }) {
+                        Text(text = stringResource(R.string.cancel))
+                    }
+                },
             )
         }
 

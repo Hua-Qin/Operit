@@ -17,8 +17,10 @@ import java.io.File
  */
 object WaifuMessageProcessor {
     private const val URL_CHARS = "[A-Za-z0-9._~:/?#\\[\\]@!$&'()*+,;=%-]"
+    private const val ENTITY_PLACEHOLDER_PREFIX = "{WAIFUENTITY:"
+    private const val ENTITY_PLACEHOLDER_SUFFIX = "}"
     private val SENTENCE_SPLIT_REGEX =
-        Regex("(?<=[。！？~～])|(?<=[!?])|(?<=\\.)(?![.\\d])|(?<=\\.)$|(?<=\\.{3})|(?<=[…](?![…]))")
+        Regex("(?<=[。！？~～])(?![\"'”’」』])|(?<=[!?])(?![\"'”’」』])|(?<=\\.)(?![.\\d\"'”’」』])|(?<=\\.)$|(?<=\\.{3})|(?<=[…](?![…]))")
     private val SENTENCE_END_REGEX =
         Regex("(?:[。！？~～.!?…]|\\.{3})\\s*$")
     private val HORIZONTAL_RULE_REGEX = Regex("^[-_*]{3,}$")
@@ -27,6 +29,8 @@ object WaifuMessageProcessor {
     private val EMAIL_ADDRESS_REGEX = Regex("""[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}""")
     private val DOMAIN_URL_REGEX =
         Regex("""(?<![@\w])(?:www\.)?(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}(?::\d+)?(?:[/?#]$URL_CHARS*)?""")
+    private val ENTITY_PLACEHOLDER_REGEX =
+        Regex("${Regex.escape(ENTITY_PLACEHOLDER_PREFIX)}\\d+${Regex.escape(ENTITY_PLACEHOLDER_SUFFIX)}")
     
     private var customEmojiRepository: CustomEmojiRepository? = null
     private var activePromptManager: ActivePromptManager? = null
@@ -167,11 +171,9 @@ object WaifuMessageProcessor {
         if (content.isBlank()) return emptyList()
 
         val entities = mutableListOf<String>()
-        val placeholderPrefix = "{WAIFUENTITY:"
-        val placeholderSuffix = "}"
 
         fun createPlaceholder(value: String): String {
-            val placeholder = "$placeholderPrefix${entities.size}$placeholderSuffix"
+            val placeholder = "$ENTITY_PLACEHOLDER_PREFIX${entities.size}$ENTITY_PLACEHOLDER_SUFFIX"
             entities.add(value)
             return placeholder
         }
@@ -197,13 +199,16 @@ object WaifuMessageProcessor {
         
         // 2. 首先分离表情包和文本内容（在处理占位符版本的内容上）
         val segments = splitIntoSegments(contentWithPlaceholders)
-        val hasFollowingVisibleSegment =
+        val hasFollowingStableBoundarySegment =
             BooleanArray(segments.size).also { flags ->
-                var seenVisibleSegment = false
+                var seenStableBoundarySegment = false
                 for (index in segments.indices.reversed()) {
-                    flags[index] = seenVisibleSegment
-                    if (segmentProducesOutput(segments[index])) {
-                        seenVisibleSegment = true
+                    flags[index] = seenStableBoundarySegment
+                    if (
+                        segmentProducesOutput(segments[index]) &&
+                        segments[index].blockType.canCloseStableTextAtBlockBoundary()
+                    ) {
+                        seenStableBoundarySegment = true
                     }
                 }
             }
@@ -238,20 +243,35 @@ object WaifuMessageProcessor {
 
                 var sentences = splitPlainTextIntoSentences(cleanedContent, removePunctuation = removePunctuation)
 
-                if (shouldUseStructuredLineFallback(item, sentences)) {
+                if (shouldSplitStructuredMarkdownLines(item, sentences)) {
                     sentences = splitStructuredMarkdownLines(item, removePunctuation = removePunctuation)
                 }
 
-                if (
-                    !includeTrailingIncomplete &&
-                    sentences.isNotEmpty() &&
-                    !hasStableSentenceEnding(cleanedContent) &&
-                    !lineAllowsStableWithoutSentenceEnding(getLastVisibleLine(item)) &&
-                    !segment.canUseBlockBoundaryAsStableEnding(
-                        hasFollowingVisibleSegment = hasFollowingVisibleSegment[segmentIndex]
-                    )
-                ) {
-                    sentences = sentences.dropLast(1)
+                if (!includeTrailingIncomplete && sentences.isNotEmpty()) {
+                    val unclosedInlineMarkdownStart = findLastUnclosedInlineMarkdownStart(item)
+                    if (unclosedInlineMarkdownStart != null) {
+                        val stableRawContent = item.substring(0, unclosedInlineMarkdownStart)
+                        val stableCleanedContent = cleanContentForWaifu(stableRawContent)
+                        sentences =
+                            splitStableSentencesForRawContent(
+                                rawContent = stableRawContent,
+                                cleanedContent = stableCleanedContent,
+                                removePunctuation = removePunctuation,
+                                segment = segment,
+                                hasFollowingStableBoundarySegment =
+                                    hasFollowingStableBoundarySegment[segmentIndex]
+                            )
+                    } else if (
+                        shouldHoldLastStableSentence(
+                            rawContent = item,
+                            cleanedContent = cleanedContent,
+                            segment = segment,
+                            hasFollowingStableBoundarySegment =
+                                hasFollowingStableBoundarySegment[segmentIndex]
+                        )
+                    ) {
+                        sentences = sentences.dropLast(1)
+                    }
                 }
 
                 resultWithPlaceholders.addAll(sentences)
@@ -266,7 +286,7 @@ object WaifuMessageProcessor {
             var currentSentence = sentence
             val placeholderRegex =
                 Regex(
-                    "${Regex.escape(placeholderPrefix)}(\\d+)${Regex.escape(placeholderSuffix)}"
+                    "${Regex.escape(ENTITY_PLACEHOLDER_PREFIX)}(\\d+)${Regex.escape(ENTITY_PLACEHOLDER_SUFFIX)}"
                 )
             
             // 循环替换，以处理一个句子中可能存在的多个占位符
@@ -355,7 +375,7 @@ object WaifuMessageProcessor {
         return mergedSegments
     }
 
-    private fun shouldUseStructuredLineFallback(
+    private fun shouldSplitStructuredMarkdownLines(
         content: String,
         sentences: List<String>,
     ): Boolean {
@@ -446,11 +466,103 @@ object WaifuMessageProcessor {
 
         return BARE_URL_REGEX.containsMatchIn(trimmedLine) ||
             DOMAIN_URL_REGEX.containsMatchIn(trimmedLine) ||
-            EMAIL_ADDRESS_REGEX.containsMatchIn(trimmedLine)
+            EMAIL_ADDRESS_REGEX.containsMatchIn(trimmedLine) ||
+            ENTITY_PLACEHOLDER_REGEX.containsMatchIn(trimmedLine)
     }
 
     private fun hasStableSentenceEnding(content: String): Boolean {
         return SENTENCE_END_REGEX.containsMatchIn(content.trimEnd())
+    }
+
+    private fun splitStableSentencesForRawContent(
+        rawContent: String,
+        cleanedContent: String,
+        removePunctuation: Boolean,
+        segment: Segment,
+        hasFollowingStableBoundarySegment: Boolean,
+    ): List<String> {
+        if (cleanedContent.isBlank()) {
+            return emptyList()
+        }
+
+        var stableSentences =
+            splitPlainTextIntoSentences(cleanedContent, removePunctuation = removePunctuation)
+
+        if (shouldSplitStructuredMarkdownLines(rawContent, stableSentences)) {
+            stableSentences =
+                splitStructuredMarkdownLines(rawContent, removePunctuation = removePunctuation)
+        }
+
+        if (
+            stableSentences.isNotEmpty() &&
+            shouldHoldLastStableSentence(
+                rawContent = rawContent,
+                cleanedContent = cleanedContent,
+                segment = segment,
+                hasFollowingStableBoundarySegment = hasFollowingStableBoundarySegment
+            )
+        ) {
+            stableSentences = stableSentences.dropLast(1)
+        }
+
+        return stableSentences
+    }
+
+    private fun shouldHoldLastStableSentence(
+        rawContent: String,
+        cleanedContent: String,
+        segment: Segment,
+        hasFollowingStableBoundarySegment: Boolean,
+    ): Boolean {
+        return !hasStableSentenceEnding(cleanedContent) &&
+            !lineAllowsStableWithoutSentenceEnding(getLastVisibleLine(rawContent)) &&
+            !segment.canUseBlockBoundaryAsStableEnding(
+                hasFollowingStableBoundarySegment = hasFollowingStableBoundarySegment
+            )
+    }
+
+    private fun findLastUnclosedInlineMarkdownStart(content: String): Int? {
+        val trimmedContent = content.trimEnd()
+        if (trimmedContent.isEmpty()) {
+            return null
+        }
+
+        return listOf("**", "__", "~~", "`")
+            .mapNotNull { delimiter -> findLastUnclosedDelimiterStart(trimmedContent, delimiter) }
+            .maxOrNull()
+    }
+
+    private fun findLastUnclosedDelimiterStart(content: String, delimiter: String): Int? {
+        val starts = mutableListOf<Int>()
+        var index = 0
+        while (index <= content.length - delimiter.length) {
+            val foundIndex = content.indexOf(delimiter, startIndex = index)
+            if (foundIndex < 0) {
+                break
+            }
+
+            if (!isEscaped(content, foundIndex)) {
+                starts.add(foundIndex)
+            }
+            index = foundIndex + delimiter.length
+        }
+
+        if (starts.size % 2 == 0) {
+            return null
+        }
+
+        return starts.lastOrNull()
+    }
+
+    private fun isEscaped(content: String, index: Int): Boolean {
+        var slashCount = 0
+        var cursor = index - 1
+        while (cursor >= 0 && content[cursor] == '\\') {
+            slashCount += 1
+            cursor -= 1
+        }
+
+        return slashCount % 2 == 1
     }
 
     private fun segmentProducesOutput(segment: Segment): Boolean {
@@ -553,10 +665,34 @@ object WaifuMessageProcessor {
         val isProtected: Boolean,
         val blockType: MarkdownProcessorType,
     ) {
-        fun canUseBlockBoundaryAsStableEnding(hasFollowingVisibleSegment: Boolean): Boolean {
-            return hasFollowingVisibleSegment || blockType != MarkdownProcessorType.PLAIN_TEXT
+        fun canUseBlockBoundaryAsStableEnding(hasFollowingStableBoundarySegment: Boolean): Boolean {
+            return hasFollowingStableBoundarySegment || blockType.canCloseStableTextAtBlockBoundary()
         }
     }
+
+    private fun MarkdownProcessorType.canCloseStableTextAtBlockBoundary(): Boolean =
+        when (this) {
+            MarkdownProcessorType.HEADER,
+            MarkdownProcessorType.BLOCK_QUOTE,
+            MarkdownProcessorType.CODE_BLOCK,
+            MarkdownProcessorType.ORDERED_LIST,
+            MarkdownProcessorType.UNORDERED_LIST,
+            MarkdownProcessorType.BLOCK_LATEX,
+            MarkdownProcessorType.TABLE,
+            MarkdownProcessorType.IMAGE -> true
+
+            MarkdownProcessorType.HORIZONTAL_RULE,
+            MarkdownProcessorType.XML_BLOCK,
+            MarkdownProcessorType.BOLD,
+            MarkdownProcessorType.ITALIC,
+            MarkdownProcessorType.INLINE_CODE,
+            MarkdownProcessorType.LINK,
+            MarkdownProcessorType.STRIKETHROUGH,
+            MarkdownProcessorType.UNDERLINE,
+            MarkdownProcessorType.INLINE_LATEX,
+            MarkdownProcessorType.PLAIN_TEXT,
+            MarkdownProcessorType.HTML_BREAK -> false
+        }
 
     private val TRAILING_PROTECTED_TEXT_CHARS =
         setOf('。', '！', '？', '.', '!', '?', '…', '，', ',', '；', ';', '：', ':', ')', '）', ']', '】', '}', '」', '"', '\'')

@@ -4810,12 +4810,6 @@ Ahora puede usar el modo AutoGLM en la interfaz de conversación.</string>
     <string name="software_identity_description">Cambiar la identidad del software que se muestra en la parte superior de la barra lateral.</string>
     <string name="software_identity_option_operit">Operit AI</string>
     <string name="software_identity_option_lingshu">Lingshu AI</string>
-    <string name="app_icon_switch_title">Icono de la aplicación</string>
-    <string name="app_icon_switch_description">Cambiar el icono de la aplicación que se muestra en el escritorio (algunos escritorios pueden retrasar la actualización).</string>
-    <string name="app_icon_option_default">Icono clasico</string>
-    <string name="app_icon_option_simple">Icono simple</string>
-    <string name="app_icon_switch_applied_tip">Icono cambiado, vuelve al escritorio para verlo</string>
-    <string name="app_icon_switch_failed">Error al cambiar el icono</string>
     <string name="reset_all_display_settings">Restablecer toda la configuración de pantalla</string>
     <string name="ui_accessibility_mode">Modo de accesibilidad</string>
     <string name="ui_accessibility_mode_description">Optimizar el comportamiento de automatización de la interfaz de usuario para usuarios de accesibilidad como TalkBack, priorizando pasos legibles y evitando clics automáticos.</string>

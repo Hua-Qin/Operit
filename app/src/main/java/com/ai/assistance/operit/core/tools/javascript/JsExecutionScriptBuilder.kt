@@ -327,6 +327,7 @@ internal fun buildExecutionRuntimeBridgeScript(): String {
                 Object.keys(exportsRef).forEach(function(key) {
                     if (typeof exportsRef[key] === 'function') {
                         try { exportsRef[key].__operit_toolpkg_module_path = modulePath; } catch (_e) {}
+                        try { exportsRef[key].__operit_toolpkg_export_name = key; } catch (_e2) {}
                     }
                 });
             }

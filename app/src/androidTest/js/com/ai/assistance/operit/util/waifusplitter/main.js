@@ -250,6 +250,18 @@ function buildScreenshotCaseInput() {
   );
 }
 
+function buildInlineBoldScreenshotInput() {
+  return '放心，这次只收到 **1条"?"** 了，没有重复！✅ 看来软件今天表现正常了😊';
+}
+
+function buildSelfCorrectionScreenshotInput() {
+  return (
+    '等等……我仔细看了看，其实你只发了 **1条**！是我自己没输出内容，结果生成了6个空白回复 😂😂😂\n\n' +
+    '**是我菜，不是软件的问题！！！** 🧎‍♂️🤦‍♂️\n\n' +
+    '抱歉抱歉，虚惊一场～这波我的我的！🫡😄'
+  );
+}
+
 function buildTests(adapter) {
   return [
     test('plain split: decimal number is not split by dot', () => {
@@ -377,6 +389,72 @@ function buildTests(adapter) {
     test('stable split: trailing incomplete markdown sentence is withheld', () => {
       const out = adapter.splitStableMessageSegments('**第一句。** 第二', false);
       assertListEq(out, ['第一句。']);
+    }),
+    test('streaming session: inline bold count waits for full sentence before emitting', () => {
+      const session = adapter.createStreamingSession(false);
+      const partialBold = session.collectStableSegments('放心，这次只收到 **1条"?"**');
+      const firstSentence = session.collectStableSegments('放心，这次只收到 **1条"?"** 了，没有重复！');
+      const fullStable = session.collectStableSegments(buildInlineBoldScreenshotInput());
+      const finalPart = session.collectFinalSegments(buildInlineBoldScreenshotInput());
+      assertListEq(partialBold, []);
+      assertListEq(firstSentence, ['放心，这次只收到 1条"?" 了，没有重复！']);
+      assertListEq(fullStable, []);
+      assertListEq(finalPart, ['✅ 看来软件今天表现正常了😊']);
+    }),
+    test('markdown split: inline bold count keeps screenshot sentence boundaries', () => {
+      const out = adapter.splitMessageBySentences(buildInlineBoldScreenshotInput(), false);
+      assertListEq(out, [
+        '放心，这次只收到 1条"?" 了，没有重复！',
+        '✅ 看来软件今天表现正常了😊',
+      ]);
+    }),
+    test('markdown split: self-correction screenshot keeps bold sentence and emoji tails', () => {
+      const out = adapter.splitMessageBySentences(buildSelfCorrectionScreenshotInput(), false);
+      assertListEq(out, [
+        '等等……',
+        '我仔细看了看，其实你只发了 1条！',
+        '是我自己没输出内容，结果生成了6个空白回复 😂😂😂 是我菜，不是软件的问题！！！',
+        '🧎‍♂️🤦‍♂️ 抱歉抱歉，虚惊一场～',
+        '这波我的我的！',
+        '🫡😄',
+      ]);
+    }),
+    test('streaming session: self-correction screenshot stays incremental', () => {
+      const session = adapter.createStreamingSession(false);
+      const input = buildSelfCorrectionScreenshotInput();
+      const stable = session.collectStableSegments(input);
+      const finalPart = session.collectFinalSegments(input);
+      assertListEq(stable, [
+        '等等……',
+        '我仔细看了看，其实你只发了 1条！',
+        '是我自己没输出内容，结果生成了6个空白回复 😂😂😂 是我菜，不是软件的问题！！！',
+        '🧎‍♂️🤦‍♂️ 抱歉抱歉，虚惊一场～',
+        '这波我的我的！',
+      ]);
+      assertListEq(finalPart, ['🫡😄']);
+    }),
+    test('streaming session: self-correction incomplete bold is withheld until closed', () => {
+      const session = adapter.createStreamingSession(false);
+      const partialInput =
+        '等等……我仔细看了看，其实你只发了 **1条**！' +
+        '是我自己没输出内容，结果生成了6个空白回复 😂😂😂\n\n' +
+        '**是我菜，不是软件的问题！！！';
+      const partialStable = session.collectStableSegments(partialInput);
+      const closedBoldStable = session.collectStableSegments(partialInput + '**');
+      const fullStable = session.collectStableSegments(buildSelfCorrectionScreenshotInput());
+      const finalPart = session.collectFinalSegments(buildSelfCorrectionScreenshotInput());
+      assertListEq(partialStable, [
+        '等等……',
+        '我仔细看了看，其实你只发了 1条！',
+      ]);
+      assertListEq(closedBoldStable, [
+        '是我自己没输出内容，结果生成了6个空白回复 😂😂😂 是我菜，不是软件的问题！！！',
+      ]);
+      assertListEq(fullStable, [
+        '🧎‍♂️🤦‍♂️ 抱歉抱歉，虚惊一场～',
+        '这波我的我的！',
+      ]);
+      assertListEq(finalPart, ['🫡😄']);
     }),
     test('streaming session: stable and final markdown emissions stay incremental', () => {
       const session = adapter.createStreamingSession(false);
@@ -521,6 +599,51 @@ exports.inspectPrototypeUrlCases = function inspectPrototypeUrlCases() {
     schemelessUrl: {
       kotlin: inspect(kotlin, cases.schemelessUrl),
       prototype: inspect(prototype, cases.schemelessUrl),
+    },
+  };
+};
+
+exports.inspectSelfCorrectionCase = function inspectSelfCorrectionCase() {
+  const adapter = createKotlinAdapter();
+  const session = adapter.createStreamingSession(false);
+  const input = buildSelfCorrectionScreenshotInput();
+
+  return {
+    input,
+    cleanContent: adapter.cleanContentForWaifu(input),
+    split: adapter.splitMessageBySentences(input, false),
+    stableSplit: adapter.splitStableMessageSegments(input, false),
+    streamStableThenFinal: {
+      stable: session.collectStableSegments(input),
+      final: session.collectFinalSegments(input),
+    },
+    splitRemovePunctuation: adapter.splitMessageBySentences(input, true),
+  };
+};
+
+exports.inspectSelfCorrectionStreamingSteps = function inspectSelfCorrectionStreamingSteps() {
+  const adapter = createKotlinAdapter();
+  const session = adapter.createStreamingSession(false);
+  const partialInput =
+    '等等……我仔细看了看，其实你只发了 **1条**！' +
+    '是我自己没输出内容，结果生成了6个空白回复 😂😂😂\n\n' +
+    '**是我菜，不是软件的问题！！！';
+  const closedBoldInput = partialInput + '**';
+  const fullInput = buildSelfCorrectionScreenshotInput();
+
+  return {
+    partialInput,
+    closedBoldInput,
+    fullInput,
+    partialSplit: adapter.splitMessageBySentences(partialInput, false),
+    partialStableSplit: adapter.splitStableMessageSegments(partialInput, false),
+    closedBoldSplit: adapter.splitMessageBySentences(closedBoldInput, false),
+    closedBoldStableSplit: adapter.splitStableMessageSegments(closedBoldInput, false),
+    streamSteps: {
+      partialStable: session.collectStableSegments(partialInput),
+      closedBoldStable: session.collectStableSegments(closedBoldInput),
+      fullStable: session.collectStableSegments(fullInput),
+      final: session.collectFinalSegments(fullInput),
     },
   };
 };

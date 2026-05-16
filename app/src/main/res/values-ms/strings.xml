@@ -4631,9 +4631,6 @@ Kini anda boleh menggunakan mod AutoGLM di antara muka perbualan.</string>
     <string name="keep_screen_on_description">Pastikan skrin sentiasa menyala, elakkan kunci automatik semasa perbualan</string>
     <string name="enable_navigation_animation">Animasi navigasi versi baharu</string>
     <string name="enable_navigation_animation_description">Apabila dihidupkan, dayakan kesan animasi dipertingkatkan untuk bar sisi telefon dan pertukaran halaman. Apabila dimatikan, gunakan peralihan navigasi yang ringkas.</string>
-    <string name="app_icon_switch_title">Ikon aplikasi</string>
-    <string name="app_icon_switch_description">Tukar ikon aplikasi yang dipaparkan pada desktop (sesetengah desktop mungkin lambat dikemas kini).</string>
-
     <string name="assigned_to_character_group">Telah dikategorikan ke dalam kumpulan perbualan watak "%1$s"</string>
     <string name="character_fallback">Wat</string>
     <string name="selected_chats_count">Telah memilih %1$d / %2$d item</string>
@@ -4716,10 +4713,6 @@ Kini anda boleh menggunakan mod AutoGLM di antara muka perbualan.</string>
     <string name="uidebugger_activity_monitor_item_package">Pakej: %1$s</string>
     <string name="uidebugger_activity_monitor_item_click">Klik</string>
 
-    <string name="app_icon_option_default">Ikon Klasik</string>
-    <string name="app_icon_option_simple">Ikon Ringkas</string>
-    <string name="app_icon_switch_applied_tip">Ikon telah ditukar, sila kembali ke skrin utama untuk melihat</string>
-    <string name="app_icon_switch_failed">Penukaran ikon gagal</string>
     <string name="reset_all_display_settings">Tetapkan semula semua tetapan paparan</string>
     <string name="ui_accessibility_mode">Mod Penyesuaian Aksesibiliti</string>
     <string name="ui_accessibility_mode_description">Mengoptimumkan tingkah laku automasi UI untuk pengguna aksesibiliti seperti TalkBack, mengutamakan langkah-langkah operasi yang boleh dibaca, dan melaksanakan klik automatik dengan berhati-hati.</string>

@@ -4928,12 +4928,6 @@
     <string name="software_identity_description">Change the software identity shown at the top of the sidebar.</string>
     <string name="software_identity_option_operit">Operit AI</string>
     <string name="software_identity_option_lingshu">Lingshu AI</string>
-    <string name="app_icon_switch_title">App Icon</string>
-    <string name="app_icon_switch_description">Switch the launcher icon shown on your home screen (some launchers refresh with delay).</string>
-    <string name="app_icon_option_default">Classic Icon</string>
-    <string name="app_icon_option_simple">Simple Icon</string>
-    <string name="app_icon_switch_applied_tip">Icon switched. Check it on your home screen.</string>
-    <string name="app_icon_switch_failed">Failed to switch app icon</string>
     <string name="reset_all_display_settings">Reset All Display Settings</string>
     
     <!-- Chat History Management -->
@@ -7524,6 +7518,7 @@
     <string name="chat_delete_single_variant">Delete Single Message</string>
     <string name="chat_delete_single_variant_unavailable">No single message candidates available for deletion</string>
     <string name="chat_delete_single_variant_failed">Failed to delete single message: %1$s</string>
+    <string name="chat_delete_message_confirm_message">Are you sure you want to delete this message? This action cannot be undone.</string>
 
     <string name="quick_plugin_creator_title">Quickly Create Your Plugin</string>
     <string name="quick_plugin_creator_desc">Cannot find the plugin you want in the built-in list or marketplace? Create your own.</string>

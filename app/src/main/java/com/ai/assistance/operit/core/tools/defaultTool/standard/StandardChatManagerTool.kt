@@ -1344,6 +1344,9 @@ class StandardChatManagerTool(private val context: Context) {
                 }
 
                 val preflightChatId = targetChatId ?: core.currentChatId.value
+                val preflightResponseStream = preflightChatId?.let { chatId ->
+                    core.getResponseStream(chatId)
+                }
 
                 try {
                     preflightChatId?.let { chatId ->
@@ -1412,7 +1415,7 @@ class StandardChatManagerTool(private val context: Context) {
                 val responseStream: SharedStream<String> = try {
                     var stream: SharedStream<String>? = core.getResponseStream(resolvedChatId)
                     withTimeout(remainingTimeoutMs(RESPONSE_STREAM_ACQUIRE_TIMEOUT)) {
-                        while (stream == null) {
+                        while (stream == null || stream === preflightResponseStream) {
                             val state = core.inputProcessingStateByChatId.value[resolvedChatId]
                                 ?: InputProcessingState.Idle
                             if (state is InputProcessingState.Error) {

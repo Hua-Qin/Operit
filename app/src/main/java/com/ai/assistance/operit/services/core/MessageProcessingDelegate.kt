@@ -536,6 +536,7 @@ class MessageProcessingDelegate(
             _userMessage.value = TextFieldValue("")
         }
         resetCurrentTurnToolInvocationCount(chatId)
+        chatRuntime.responseStream = null
         chatRuntime.isLoading.value = true
         chatRuntime.currentTurnOptions = turnOptions
         updateGlobalLoadingState()
