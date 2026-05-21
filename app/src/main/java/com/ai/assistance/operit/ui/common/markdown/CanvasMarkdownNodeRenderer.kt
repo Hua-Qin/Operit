@@ -717,7 +717,12 @@ private fun DrawInstruction.selectableTextLength(): Int {
 private fun DrawInstruction.selectedText(range: TextSelectionRange): CharSequence {
     return when (this) {
         is DrawInstruction.Text -> text.subSequence(range.start, range.end)
-        is DrawInstruction.TextLayout -> layout.text.subSequence(range.start, range.end)
+        is DrawInstruction.TextLayout ->
+            selectedTextWithInlineCodeMarkers(
+                text = layout.text,
+                start = range.start,
+                end = range.end,
+            )
         is DrawInstruction.Line -> ""
     }
 }
@@ -1030,6 +1035,16 @@ internal fun createInitialSelection(
             start = TextSelectionPoint(nodeIndex, instructionIndex, 0),
             end = TextSelectionPoint(nodeIndex, instructionIndex, text.length),
         )
+    }
+
+    if (instruction is DrawInstruction.TextLayout) {
+        val inlineCodeRange = inlineCodeRangeAt(text, offset)
+        if (inlineCodeRange != null) {
+            return ActiveTextSelection(
+                start = TextSelectionPoint(nodeIndex, instructionIndex, inlineCodeRange.start),
+                end = TextSelectionPoint(nodeIndex, instructionIndex, inlineCodeRange.end),
+            )
+        }
     }
 
     var anchor = offset.coerceIn(0, text.length)
@@ -1664,7 +1679,10 @@ private fun renderNodeContent(
             EnhancedCodeBlock(
                 code = codeContent,
                 language = language,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                textSelectionRequest = textSelectionRequest,
+                selectionState = selectionState,
+                nodeIndex = index,
             )
         }
         

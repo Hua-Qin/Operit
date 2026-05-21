@@ -1,5 +1,6 @@
 package com.ai.assistance.operit.ui.features.chat.components
 
+import android.widget.Toast
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.StartOffset
 import androidx.compose.animation.core.animateFloat
@@ -35,6 +36,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
@@ -64,9 +66,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -665,13 +669,15 @@ private fun MessageItem(
     var textSelectionRequest by remember(message.timestamp) {
         mutableStateOf<MarkdownTextSelectionRequest?>(null)
     }
+    val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
 
 
     // 只有用户和AI的消息才能被操作
     val isActionable = message.sender == "user" || message.sender == "ai"
     val isHiddenUserMessage = isHiddenUserPlaceholder(message)
     val currentTextSelectionRequest =
-        if (message.sender == "ai") textSelectionRequest else null
+        if (isActionable && !isHiddenUserMessage) textSelectionRequest else null
 
     Box(
         modifier =
@@ -806,12 +812,41 @@ private fun MessageItem(
             )
         ) {
             if (!isHiddenUserMessage) {
-                if (message.sender == "ai") {
-                    // 复制选项
+                if (isActionable) {
                     DropdownMenuItem(
                         text = {
                             Text(
-                                stringResource(id = R.string.copy_message),
+                                stringResource(id = R.string.copy_full_message),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontSize = 13.sp
+                            )
+                        },
+                        onClick = {
+                            clipboardManager.setText(
+                                AnnotatedString(WaifuMessageProcessor.cleanContentForWaifu(message.content))
+                            )
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.message_copied_to_clipboard),
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                            showContextMenu = false
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.ContentCopy,
+                                contentDescription = stringResource(id = R.string.copy_full_message),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        },
+                        modifier = Modifier.height(36.dp)
+                    )
+
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                stringResource(id = R.string.select_copy),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontSize = 13.sp
                             )
@@ -827,8 +862,8 @@ private fun MessageItem(
                         },
                         leadingIcon = {
                             Icon(
-                                imageVector = Icons.Default.ContentCopy,
-                                contentDescription = stringResource(id = R.string.copy_message),
+                                imageVector = Icons.Default.SelectAll,
+                                contentDescription = stringResource(id = R.string.select_copy),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(16.dp)
                             )

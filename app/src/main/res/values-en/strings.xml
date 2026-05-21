@@ -710,6 +710,7 @@
 
     <!-- Context Menu -->
     <string name="copy_message">Copy Message</string>
+    <string name="copy_full_message">Copy All</string>
     <string name="chat_hidden_user_message_placeholder">Auto-triggered user message (content hidden)</string>
     <string name="chat_hidden_user_message_badge">AUTO</string>
     <string name="info">Info</string>
@@ -732,7 +733,7 @@
     <string name="edit_and_resend">Edit &amp; Resend</string>
     <string name="rollback_to_here">Rollback to Here</string>
     <string name="reply_message">Reply</string>
-    <string name="select_copy">Select &amp; Copy</string>
+    <string name="select_copy">Select Copy</string>
     <string name="insert_summary">Insert Summary</string>
     <string name="create_branch">Create Branch</string>
     <string name="branch">Branch</string>
@@ -2523,6 +2524,7 @@
     <string name="speech_services_tts_type_http">HTTP API (Remote)</string>
     <string name="speech_services_tts_type_siliconflow">SiliconFlow TTS</string>
     <string name="speech_services_tts_type_minimax">MiniMax TTS</string>
+    <string name="speech_services_tts_type_mimo">MiMo TTS</string>
     <string name="speech_services_tts_type_openai_ws">OpenAI Realtime (WebSocket)</string>
     <string name="speech_services_tts_type_openai">OpenAI Voice (HTTP)</string>
     
@@ -2593,6 +2595,22 @@
     <string name="speech_services_minimax_voice_id">voice_id</string>
     <string name="speech_services_minimax_voice_id_placeholder">e.g.: male-qn-qingse</string>
     <string name="speech_services_minimax_voice_id_hint">Leave blank to use male-qn-qingse. It is sent as voice_setting.voice_id.</string>
+
+    <string name="speech_services_mimo_config">MiMo TTS Configuration</string>
+    <string name="speech_services_mimo_url">URL</string>
+    <string name="speech_services_mimo_url_placeholder">e.g.: https://api.xiaomimimo.com/v1/chat/completions</string>
+    <string name="speech_services_mimo_url_hint">Leave blank to use the MiMo Chat Completions speech synthesis endpoint. This provider reads choices[0].message.audio.data and decodes Base64 audio.</string>
+    <string name="speech_services_mimo_api_key">API Key</string>
+    <string name="speech_services_mimo_api_key_placeholder">Enter your MiMo API key</string>
+    <string name="speech_services_mimo_model_name">model</string>
+    <string name="speech_services_mimo_model_name_placeholder">e.g.: mimo-v2.5-tts</string>
+    <string name="speech_services_mimo_model_name_hint">Leave blank to use mimo-v2.5-tts. Use mimo-v2.5-tts for preset voices.</string>
+    <string name="speech_services_mimo_voice_select">Select preset voice</string>
+    <string name="speech_services_mimo_voice_select_icon">Select voice</string>
+    <string name="speech_services_mimo_voice_custom">Custom voice</string>
+    <string name="speech_services_mimo_voice_id">voice</string>
+    <string name="speech_services_mimo_voice_id_placeholder">e.g.: mimo_default, 冰糖, Mia, Chloe</string>
+    <string name="speech_services_mimo_voice_id_hint">Preset voices: mimo_default, 冰糖, 茉莉, 苏打, 白桦, Mia, Chloe, Milo, Dean.</string>
 
     <string name="speech_services_openai_ws_config">OpenAI Realtime Configuration</string>
     <string name="speech_services_openai_ws_url">Realtime WebSocket URL</string>
@@ -6844,6 +6862,7 @@
     <string name="minimax_tts_error_audio_url_missing">MiniMax TTS response did not contain a data.audio download URL</string>
     <string name="minimax_tts_error_audio_download_failed">Failed to download MiniMax TTS audio</string>
     <string name="minimax_tts_error_audio_download_empty">MiniMax TTS audio download returned an empty body</string>
+    <string name="mimo_tts_error_api_key_not_set">MiMo API key not set, please fill in settings.</string>
     <string name="openai_realtime_tts_error_url_not_set">OpenAI Realtime WebSocket URL not set. Please enter the full endpoint address (for example, wss://api.openai.com/v1/realtime).</string>
     <string name="openai_realtime_tts_error_url_invalid_scheme">OpenAI Realtime WebSocket URL must start with ws:// or wss://.</string>
     <string name="openai_realtime_tts_error_api_key_not_set">OpenAI Realtime API Key not set. Please fill in settings.</string>

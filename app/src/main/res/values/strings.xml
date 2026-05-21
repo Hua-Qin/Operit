@@ -1559,6 +1559,7 @@
 
     <!-- Context Menu -->
     <string name="copy_message">复制消息</string>
+    <string name="copy_full_message">全部复制</string>
     <string name="chat_hidden_user_message_placeholder">自动触发用户消息（内容已隐藏）</string>
     <string name="chat_hidden_user_message_badge">自动触发</string>
     <string name="info">信息</string>
@@ -1581,7 +1582,7 @@
     <string name="stop_reading">停止朗读</string>
     <string name="edit_and_resend">编辑并重发</string>
     <string name="rollback_to_here">回滚到此处</string>
-    <string name="select_copy">选择并复制</string>
+    <string name="select_copy">选择复制</string>
     <string name="insert_summary">插入总结</string>
     <string name="create_branch">创建分支</string>
     <string name="branch">分支</string>
@@ -2569,6 +2570,7 @@
     <string name="speech_services_tts_type_http">HTTP API (远程)</string>
     <string name="speech_services_tts_type_siliconflow">硅基流动 TTS</string>
     <string name="speech_services_tts_type_minimax">MiniMax TTS</string>
+    <string name="speech_services_tts_type_mimo">MiMo TTS</string>
     <string name="speech_services_tts_type_openai_ws">OpenAI Realtime (WebSocket)</string>
     <string name="speech_services_tts_type_openai">OpenAI 语音 (HTTP)</string>
     <string name="speech_services_tts_type_vits">VITS/Piper TTS (本地)</string>
@@ -2653,6 +2655,22 @@
     <string name="speech_services_minimax_voice_id">voice_id</string>
     <string name="speech_services_minimax_voice_id_placeholder">例如：male-qn-qingse</string>
     <string name="speech_services_minimax_voice_id_hint">留空时默认使用 male-qn-qingse；会按 MiniMax 的 voice_setting.voice_id 发送。</string>
+
+    <string name="speech_services_mimo_config">MiMo TTS 配置</string>
+    <string name="speech_services_mimo_url">URL</string>
+    <string name="speech_services_mimo_url_placeholder">例如：https://api.xiaomimimo.com/v1/chat/completions</string>
+    <string name="speech_services_mimo_url_hint">留空时使用 MiMo Chat Completions 语音合成接口；内部会解析 choices[0].message.audio.data 并做 Base64 解码。</string>
+    <string name="speech_services_mimo_api_key">API 密钥</string>
+    <string name="speech_services_mimo_api_key_placeholder">请输入您的 MiMo API Key</string>
+    <string name="speech_services_mimo_model_name">model</string>
+    <string name="speech_services_mimo_model_name_placeholder">例如：mimo-v2.5-tts</string>
+    <string name="speech_services_mimo_model_name_hint">留空时默认使用 mimo-v2.5-tts；预置音色请使用 mimo-v2.5-tts。</string>
+    <string name="speech_services_mimo_voice_select">选择预置音色</string>
+    <string name="speech_services_mimo_voice_select_icon">选择音色</string>
+    <string name="speech_services_mimo_voice_custom">自定义音色</string>
+    <string name="speech_services_mimo_voice_id">voice</string>
+    <string name="speech_services_mimo_voice_id_placeholder">例如：mimo_default、冰糖、Mia、Chloe</string>
+    <string name="speech_services_mimo_voice_id_hint">预置音色包含 mimo_default、冰糖、茉莉、苏打、白桦、Mia、Chloe、Milo、Dean。</string>
 
     <string name="speech_services_openai_ws_config">OpenAI Realtime 配置</string>
     <string name="speech_services_openai_ws_url">Realtime WebSocket URL</string>
@@ -7100,6 +7118,7 @@
     <string name="minimax_tts_error_audio_url_missing">MiniMax TTS 响应中缺少 data.audio 下载地址</string>
     <string name="minimax_tts_error_audio_download_failed">下载 MiniMax TTS 音频失败</string>
     <string name="minimax_tts_error_audio_download_empty">MiniMax TTS 音频下载结果为空</string>
+    <string name="mimo_tts_error_api_key_not_set">MiMo API Key 未设置，请在设置中填写。</string>
     <string name="openai_realtime_tts_error_url_not_set">OpenAI Realtime WebSocket URL 未设置，请填写完整接口地址（例如 wss://api.openai.com/v1/realtime）。</string>
     <string name="openai_realtime_tts_error_url_invalid_scheme">OpenAI Realtime WebSocket URL 必须以 ws:// 或 wss:// 开头。</string>
     <string name="openai_realtime_tts_error_api_key_not_set">OpenAI Realtime API Key 未设置，请在设置中填写。</string>

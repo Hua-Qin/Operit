@@ -47,6 +47,7 @@ import com.ai.assistance.operit.util.NetworkUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.CompositionLocalProvider
@@ -71,6 +72,11 @@ enum class NavigationTransitionSource {
 
 private const val TAG = "OperitApp"
 
+private data class NetworkStateSnapshot(
+    val isAvailable: Boolean,
+    val type: String
+)
+
 @Composable
 fun OperitApp(
     initialNavItem: NavItem = NavItem.AiChat,
@@ -87,6 +93,7 @@ fun OperitApp(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val appContext = remember(context) { context.applicationContext }
     val packageManager = remember {
         PackageManager.getInstance(context, AIToolHandler.getInstance(context))
     }
@@ -304,14 +311,21 @@ fun OperitApp(
     )
 
     // Network state monitoring
-    var isNetworkAvailable by remember { mutableStateOf(NetworkUtils.isNetworkAvailable(context)) }
-    var networkType by remember { mutableStateOf(NetworkUtils.getNetworkType(context)) }
+    var isNetworkAvailable by remember { mutableStateOf(false) }
+    var networkType by remember { mutableStateOf(context.getString(R.string.not_connected)) }
 
     // Periodically check network status
     LaunchedEffect(Unit) {
         while (true) {
-            isNetworkAvailable = NetworkUtils.isNetworkAvailable(context)
-            networkType = NetworkUtils.getNetworkType(context)
+            val snapshot =
+                withContext(Dispatchers.IO) {
+                    NetworkStateSnapshot(
+                        isAvailable = NetworkUtils.isNetworkAvailable(appContext),
+                        type = NetworkUtils.getNetworkType(appContext)
+                    )
+                }
+            isNetworkAvailable = snapshot.isAvailable
+            networkType = snapshot.type
             delay(10000) // Check every 10 seconds
         }
     }
