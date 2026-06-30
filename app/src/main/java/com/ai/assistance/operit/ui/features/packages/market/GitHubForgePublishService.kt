@@ -22,6 +22,7 @@ data class PublishArtifactRequest(
     val description: String,
     val detail: String,
     val categoryId: String,
+    val allowPublicUpdates: Boolean = true,
     val version: String,
     val minSupportedAppVersion: String?,
     val maxSupportedAppVersion: String?,
@@ -101,6 +102,7 @@ class GitHubForgePublishService(
                     detail = request.detail,
                     categoryId = request.categoryId,
                     version = request.version,
+                    allowPublicUpdates = request.allowPublicUpdates,
                     minSupportedAppVersion = request.minSupportedAppVersion,
                     maxSupportedAppVersion = request.maxSupportedAppVersion,
                     publishContext = request.publishContext
@@ -177,6 +179,7 @@ class GitHubForgePublishService(
                     displayName = descriptor.displayName,
                     description = descriptor.description,
                     categoryId = descriptor.categoryId,
+                    allowPublicUpdates = descriptor.allowPublicUpdates,
                     sourceFileName = sourceFile.name,
                     minSupportedAppVersion = descriptor.minSupportedAppVersion,
                     maxSupportedAppVersion = descriptor.maxSupportedAppVersion
@@ -351,6 +354,7 @@ class GitHubForgePublishService(
                 title = payload.displayName,
                 description = payload.description,
                 categoryId = payload.categoryId,
+                allowPublicUpdates = payload.allowPublicUpdates,
                 detail = payload.projectDescription.ifBlank { payload.description },
                 version = MarketV2PublishVersion(
                     version = payload.version,
